@@ -558,17 +558,18 @@ menuClass( response )
 		if ( game["state"] == "postgame" )
 			return;
 
-		if ( level.inGracePeriod && !self.hasDoneCombat ) // used weapons check?
-		{
+		//always change class
+		// if ( level.inGracePeriod && !self.hasDoneCombat ) // used weapons check?
+		// {
 			self maps\mp\gametypes\_class::setClass( self.pers["class"] );
 			self.tag_stowed_back = undefined;
 			self.tag_stowed_hip = undefined;
 			self maps\mp\gametypes\_class::giveLoadout( self.pers["team"], self.pers["class"] );
-		}
-		else
-		{
-			self iPrintLnBold( game["strings"]["change_class"] );
-		}
+		// }
+		// else
+		// {
+			// self iPrintLnBold( game["strings"]["change_class"] );
+		// }
 	}
 	else
 	{

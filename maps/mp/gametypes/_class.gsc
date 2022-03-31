@@ -8,6 +8,8 @@
 		- define your stock killstreaks, deathstreaks weapons, perks which are given, when the player uses loadout which is restricted	
 		- customize the amount of consecutive kills needed to get a certain killstreak by dvar
 
+		- Allow primary weapons as secondary
+
 	dvar syntax to be used in server.cfg:
 	set scr_allow_loadouttorestrict "0"
 
@@ -587,16 +589,17 @@ giveLoadout( team, class, allowCopycat )
 			loadoutDeathstreak = table_getDeathstreak( level.classTableName, 10 );
 	}
 
-	if ( loadoutPerk1 != "specialty_bling" )
-	{
-		loadoutPrimaryAttachment2 = "none";
-		loadoutSecondaryAttachment2 = "none";
-	}
+	//Allow multiple attachements without bling
+	// if ( loadoutPerk1 != "specialty_bling" )
+	// {
+		// loadoutPrimaryAttachment2 = "none";
+		// loadoutSecondaryAttachment2 = "none";
+	// }
 	
 	if ( loadoutPerk1 != "specialty_onemanarmy" && loadoutSecondary == "onemanarmy" )
 		loadoutSecondary = table_getWeapon( level.classTableName, 10, 1 );
 
-	//loadoutSecondaryCamo = "none";
+	loadoutSecondaryCamo = "none";
 	
 	// start checking restrictions
 	loadoutPrimary = self checkRestrictions( loadoutPrimary, "loadoutPrimary" );
@@ -1273,6 +1276,10 @@ isValidSecondary( refString )
 		case "deserteaglegold":
 			return true;
 		default:
+			//Allow primary weapons as secondary
+			if( isValidPrimary( refString ) )
+				return true;
+
 			assertMsg( "Replacing invalid secondary weapon: " + refString );
 			return false;
 	}
