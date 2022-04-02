@@ -28,6 +28,8 @@ onPlayerConnected() {
 		player setClientDvar( "savepos", "save your current position" );
 		player setClientDvar( "loadpos", "load your saved position" );
 		player setClientDvar( "alltomouse", "all bots to your mouse position" );
+		player setClientDvar( "resetbotspawnpos", "reset bots spawn position" );
+		player setClientDvar("buildplatform", "build a nice platform of carepackages");
 
 		//register custom notifies
 		player notifyOnPlayerCommand( "cmd_suicide", "die" );
@@ -42,6 +44,8 @@ onPlayerConnected() {
 		player notifyOnPlayerCommand( "cmd_savespawnpos", "savespawnpos" );
 		player notifyOnPlayerCommand( "cmd_loadspawnpos", "loadspawnpos" );
 		player notifyOnPlayerCommand( "cmd_alltomouse", "alltomouse" );
+		player notifyOnPlayerCommand( "cmd_reset_bot_spawn_pos", "resetbotspawnpos" );
+		player notifyOnPlayerCommand("cmd_build_platform", "buildplatform");
 
 
 		//setup custom command threads
@@ -52,12 +56,15 @@ onPlayerConnected() {
 		player thread cmdFastLast();
 		player thread cmdTwoPiece();
 		player thread cmdAllToMouse();
+		player thread cmdUnsetBotSpawnPos();
 
 		player thread cmdUfo();
 		player thread cmdSavePos();
 		player thread cmdLoadPos();
 		player thread cmdSaveSpawnPos();
 		player thread cmdLoadSpawnPos();
+
+		player thread cmdBuildPlatform();
 	}
 }
 
@@ -220,12 +227,77 @@ cmdAllToMouse(){
 		end = anglestoforward(self getPlayerAngles()) * 1000000;
 		destination = BulletTrace(start, end, true, self)["position"];
 
-			foreach(player in level.players)
+		foreach(player in level.players)
+		{
+			if (!player isBot()) continue;
+
+			if (level.gameType != "sd") {
+				player.pers["spawnPosition"] = destination;
+			} 
+
+			//TODO: Reset bot target & waypoints
+
+			player setOrigin(destination);
+		}
+	}
+}
+
+cmdUnsetBotSpawnPos(){
+	self endon("disconnect");
+
+	for(;;){
+
+		self waittill("cmd_reset_bot_spawn_pos");
+
+		foreach(player in level.players)
 			{
 				if (!player isBot()) continue;
-
-				player.pers["spawnPosition"] = destination;
-				player setOrigin(destination);
+				
+				player.pers["spawnPosition"] = undefined;
+				player.pers["spawnAngle"] = undefined;
 			}
+			
+			self iPrintLn( "Resetted bots spawn position" );
+
 	}
+}
+
+cmdBuildPlatform(){
+	self endon("disconnect");
+
+	for(;;){
+		self waittill("cmd_build_platform");
+
+		location = self.origin;
+		while (isDefined(self.spawnedcrate[0][0]))
+		{
+			i = -3;
+			while (i < 3)
+			{
+				d = -3;
+				while (d < 3)
+				{
+					self.spawnedcrate[i][d] delete();
+					d++;
+				}
+				i++;
+			}
+		}
+		startpos = location + (0, 0, -15);
+		i = -3;
+		while (i < 3)
+		{
+			d = -3;
+			while (d < 3)
+			{		
+
+				crateType = maps\mp\killstreaks\_airdrop::getRandomCrateType( "airdrop" );
+				self.spawnedcrate[i][d] = maps\mp\killstreaks\_airdrop::createAirDropCrate(self, "airdrop", crateType, startpos + (d * 55, i * 30, 0));
+				d++;
+			}
+			i++;
+		}
+
+	}
+
 }

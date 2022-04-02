@@ -1104,20 +1104,35 @@ giveRecentShieldXP()
 
 Callback_PlayerDamage_internal( eInflictor, eAttacker, victim, iDamage, iDFlags, sMeansOfDeath, sWeapon, vPoint, vDir, sHitLoc, psOffsetTime )
 {	
-	/** 
-		Sniper damage
-	 */
-	if ( sMeansOfDeath != "MOD_FALLING" ) {
-		if ( sMeansOfDeath == "MOD_MELEE" )
-			iDamage = 1;
-		else if ( getWeaponClass( sWeapon ) == "weapon_sniper" )
-			iDamage = 10000000;
-		else if ( eInflictor == eAttacker && ( getWeaponClass( sWeapon ) == "weapon_grenade" || getWeaponClass( sWeapon ) == "other" ) )
-			iDamage = 10000000;
-		else if ( eInflictor != eAttacker && sWeapon == "throwingknife_mp" )
-			iDamage = 10000000;
-		else
-			iDamage = 1; //All other weapons
+
+
+	if (isPlayer( eAttacker )) {
+		
+		if (eAttacker isBot()) {
+			/**
+				Bots only deal 1 damage to players
+			 */
+			if (isPlayer( victim ) && !victim isBot()) {
+				iDamage = 1;
+			} 
+
+		} else {
+			/** 
+				Sniper damage
+			*/
+			if ( sMeansOfDeath != "MOD_FALLING" ) {
+				if ( sMeansOfDeath == "MOD_MELEE" )
+					iDamage = 1;
+				else if ( getWeaponClass( sWeapon ) == "weapon_sniper" )
+					iDamage = 10000000;
+				else if ( eInflictor == eAttacker && ( getWeaponClass( sWeapon ) == "weapon_grenade" || getWeaponClass( sWeapon ) == "other" ) )
+					iDamage = 10000000;
+				else if ( eInflictor != eAttacker && sWeapon == "throwingknife_mp" )
+					iDamage = 10000000;
+				else
+					iDamage = 1; //All other weapons
+			}
+		}
 	}
 
 	if( level.disableKnife && sMeansOfDeath == "MOD_MELEE" && sWeapon != "riotshield_mp" )
